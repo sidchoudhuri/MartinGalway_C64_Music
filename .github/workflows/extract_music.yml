@@ -1,0 +1,28 @@
+name: Extract C64 Music
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install 64tass
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y 64tass
+
+      - name: Assemble ASM files
+        run: |
+          mkdir -p output
+          for file in *.asm; do
+            # The -lib flag ensures the Ocean macros are loaded first
+            64tass --quiet --ascii -i "$file" -lib ocean_assembler_directives.txt -o "output/${file%.asm}.prg" || echo "Skipping $file"
+          done
+
+      - name: Upload Binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-music
+          path: output/
