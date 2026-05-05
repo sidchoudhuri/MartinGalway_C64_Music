@@ -17,9 +17,14 @@ jobs:
         run: |
           mkdir -p output
           for file in *.asm; do
-            # The -lib flag ensures the Ocean macros are loaded first
+            # uses Ocean macros
             64tass --quiet --ascii -i "$file" -lib ocean_assembler_directives.txt -o "output/${file%.asm}.prg" || echo "Skipping $file"
           done
+
+      - name: Organize files
+        run: |
+          mkdir -p output
+          cp *.prg output/ || echo "No extra prg giles in root"
 
       - name: Upload Binaries
         uses: actions/upload-artifact@v4
